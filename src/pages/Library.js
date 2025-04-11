@@ -43,11 +43,20 @@ export default function Library() {
     fetchGroupsAndPdfs();
   }, []);
 
-  const viewPdf = (id) => {
+  const viewPdf = async (id) => {
     const token = localStorage.getItem('token');
-    const url = `http://localhost:3001/api/pdf/${id}?token=${token}#toolbar=0&navpanes=0&scrollbar=0`;
-    setSelectedPdfUrl(url);
+  
+    try {
+      const res = await API.get(`/pdf/${id}?token=${token}`);
+      const { url } = res.data;
+  
+      const fullUrl = `${url}#toolbar=0&navpanes=0&scrollbar=0`;
+      setSelectedPdfUrl(fullUrl);
+    } catch (err) {
+      console.error('Failed to load PDF:', err);
+    }
   };
+  
   
 
   return (

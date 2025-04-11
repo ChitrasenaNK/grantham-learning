@@ -17,6 +17,7 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
 }).promise();
 
 // Auth middleware
@@ -48,7 +49,7 @@ app.post('/api/auth/signup', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     await db.execute(
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
       [username, email, hashedPassword]
     );
     res.sendStatus(201);
@@ -64,7 +65,7 @@ app.post('/api/auth/signup', async (req, res) => {
 // Login
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
-  const [users] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+  const [users] = await db.execute('SELECT * FROM users WHERE name = ?', [username]);
   if (!users.length) return res.sendStatus(401);
 
   const match = await bcrypt.compare(password, users[0].password);
@@ -98,15 +99,16 @@ app.get('/api/pdf/:id', async (req, res) => {
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
     const { id } = req.params;
+
     const [rows] = await db.execute('SELECT name, data FROM pdfs WHERE id = ?', [id]);
     if (!rows.length) return res.sendStatus(404);
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(rows[0].data);
+    res.json({ name: rows[0].name, url: rows[0].data }); // ✅ Return URL
   } catch (err) {
     res.sendStatus(403);
   }
 });
+
 
 const passwordResetTokens = new Map();
 
