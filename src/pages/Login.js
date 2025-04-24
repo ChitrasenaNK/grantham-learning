@@ -292,8 +292,9 @@ export default function Login() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: isMobile ? '90%' : 400, // Responsive width
+            width: isMobile ? '80%' : 400, // Responsive width
             p: 4,
+            mx:'auto',
             backgroundColor: 'rgba(255, 255, 255, 0.65)',
             backdropFilter: 'blur(6px)',
             borderRadius: 2,
